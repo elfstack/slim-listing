@@ -1,5 +1,10 @@
 # Slim Listing
 
+[![Latest Stable Version](https://poser.pugx.org/elfstack/slim-listing/v/stable)](https://packagist.org/packages/elfstack/slim-listing)
+[![Total Downloads](https://poser.pugx.org/elfstack/slim-listing/downloads)](https://packagist.org/packages/elfstack/slim-listing)
+[![Latest Unstable Version](https://poser.pugx.org/elfstack/slim-listing/v/unstable)](https://packagist.org/packages/elfstack/slim-listing)
+[![License](https://poser.pugx.org/elfstack/slim-listing/license)](https://packagist.org/packages/elfstack/slim-listing)
+
 This package provides functionality to build a general listing API in a quick and convenient fashion.
 Which is heavily inspired by [BRACKETS-by-TRIAD/admin-listing](https://github.com/BRACKETS-by-TRIAD/admin-listing).
 It handles request like pagination, sorting, filtering and searching.
