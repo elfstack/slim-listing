@@ -6,10 +6,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-use Illuminate\Support\Facades\DB;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Container;
 
 /**
  * Listing Builder for Slim Framework
@@ -35,6 +33,11 @@ class Listing
     protected $perPage = 10;
 
     /**
+     * @var int
+     */
+    protected $page;
+
+    /**
      * @var array
      */
     protected $columns = ['*'];
@@ -54,9 +57,12 @@ class Listing
      */
     protected $searchableColumns;
 
-
     private function __construct($model)
     {
+        if (is_string($model)) {
+            $model = new $model;
+        }
+
         if (!is_a($model, Model::class)) {
             throw new \Exception('Slim Listing is only compatible with eloquent');
         }
@@ -66,34 +72,71 @@ class Listing
         return $this;
     }
 
+    /**
+     * Create a new Listing instance
+     *
+     * @param $model
+     * @return static
+     * @throws \Exception
+     */
     public static function create($model): self
     {
         return new Listing($model);
     }
 
+    /**
+     * Set columns to display
+     *
+     * @param array $columns
+     * @return $this
+     */
     public function setColumns(array $columns) {
         $this->columns = $columns;
         return $this;
     }
 
+    /**
+     * Add sorting functionality
+     *
+     * @param array $sortableColumns
+     * @return $this
+     */
     public function attachSorting(array $sortableColumns)
     {
         $this->sortableColumns = $sortableColumns;
         return $this;
     }
 
+    /**
+     * Add filterable functionality
+     *
+     * @param array $filterableColumns
+     * @return $this
+     */
     public function attachFiltering(array $filterableColumns)
     {
         $this->filterableColumns = $filterableColumns;
         return $this;
     }
 
+    /**
+     * Add searchable functionality
+     *
+     * @param array $serchableColumns
+     * @return $this
+     */
     public function attachSearching(array $serchableColumns)
     {
         $this->searchableColumns = $serchableColumns;
         return $this;
     }
 
+    /**
+     * Run sorting
+     *
+     * @param string $column
+     * @param string $direction
+     */
     private function querySorting(string $column, string $direction): void
     {
         if (in_array($column, $this->sortableColumns) && in_array($direction, ['desc', 'asc'])) {
@@ -101,6 +144,12 @@ class Listing
         }
     }
 
+    /**
+     * Run filtering
+     *
+     * @param string $column
+     * @param $value
+     */
     private function queryFiltering(string $column, $value): void
     {
         if (in_array($column, $this->filterableColumns)) {
@@ -112,6 +161,11 @@ class Listing
         }
     }
 
+    /**
+     * Run search
+     *
+     * @param string $value
+     */
     private function querySearch(string $value): void
     {
         foreach ($this->searchableColumns as $column) {
@@ -119,11 +173,22 @@ class Listing
         }
     }
 
+    /**
+     * Execute paginator
+     *
+     * @return LengthAwarePaginator
+     */
     private function paginate()
     {
-        return $this->query->paginate($this->perPage);
+        return $this->query->paginate($this->perPage, $this->columns, 'page', $this->page);
     }
 
+    /**
+     * Get filters from query param
+     *
+     * @param string $filter
+     * @return array
+     */
     public function getFilter(string $filter): array
     {
         $values = explode(';', $filter);
@@ -140,16 +205,12 @@ class Listing
     }
 
     /**
-     * Process listing request
-     * Ordering Query: orderBy=<column>&direction=<desc|asc>
-     * Filtering Query: filter=<column1:val1,val2;column2:val1,val2;column3:val1,val2>
-     * Pagination Query: perPage=<perPage>&page=<page>
-     * Search Query: keyword=<keyword>
+     * Get result
      *
      * @param Request $request
      * @param Response $response
      *
-     * @return LengthAwarePaginator
+     * @return LengthAwarePaginator|Response
      */
     public function get(Request $request, Response $response = null)
     {
@@ -162,6 +223,15 @@ class Listing
         }
     }
 
+    /**
+     * Process listing request
+     * Ordering Query: orderBy=<column>&direction=<desc|asc>
+     * Filtering Query: filter=<column1:val1,val2;column2:val1,val2;column3:val1,val2>
+     * Pagination Query: perPage=<perPage>&page=<page>
+     * Search Query: keyword=<keyword>
+     *
+     * @param Request $request
+     */
     public function processRequest(Request $request)
     {
         $params = $request->getQueryParams();
@@ -185,7 +255,7 @@ class Listing
         }
 
         if (!empty($params['page'])) {
-            $this->perPage = $params['page'];
+            $this->page = $params['page'];
         }
     }
     /**
@@ -200,7 +270,6 @@ class Listing
 
         return $this;
     }
-
 
     /**
      * @param $query

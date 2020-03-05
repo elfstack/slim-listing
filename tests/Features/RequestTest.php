@@ -2,7 +2,9 @@
 
 namespace Elfstack\SlimListing\Tests\Features;
 
+use Elfstack\SlimListing\Listing;
 use Elfstack\SlimListing\Tests\TestCase;
+use Elfstack\SlimListing\Tests\TestModel;
 use Slim\Http\Environment;
 use Slim\Http\Request;
 
@@ -16,7 +18,8 @@ class RequestTest extends TestCase
             'QUERY_STRING'=>''
         ]));
 
-        $result = $this->listing->get($request);
+        // Create from class string
+        $result = Listing::create(TestModel::class)->get($request);
 
         $this->assertCount(10, $result);
     }
@@ -73,5 +76,19 @@ class RequestTest extends TestCase
         $result = $this->listing->attachFiltering(['number', 'color'])->get($request);
 
         $this->assertCount(3, $result);
+    }
+
+    public function testPagination()
+    {
+        $request = Request::createFromEnvironment(Environment::mock([
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/test',
+            'QUERY_STRING'=>'perPage=5&page=2'
+        ]));
+
+        // Create from class string
+        $result = Listing::create(TestModel::class)->get($request);
+
+        $this->assertEquals(2, $result->currentPage());
     }
 }
