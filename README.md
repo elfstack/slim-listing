@@ -37,6 +37,8 @@ $container['db'] = function ($container) use ($capsule){
 ```
 
 ## Usage
+
+### Full Example
 ```php
 function controllerMethod(Request $request, Response $response)
 {
@@ -49,6 +51,23 @@ function controllerMethod(Request $request, Response $response)
                    })
                    ->get($request, $response);
 }
+```
+
+### Create an Instance
+
+```php
+Listing::create(Model::class);
+Listing::create(new Model());
+```
+
+### Retrieving Result
+#### Get collection only
+```php
+get($request);
+```
+#### Get response
+```php
+get($request, $response);
 ```
 
 ## Query String Pattern
