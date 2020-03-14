@@ -76,13 +76,31 @@ get($request, $response);
 ```
 
 ## Query String Pattern
-
 Patterns below can be used together
 
 * Ordering: `orderBy=<column>&direction=<desc|asc>`
 * Filtering: `filter=<column1:val1,val2;column2:val1,val2;column3:val1,val2>`
 * Pagination: `perPage=<perPage>&page=<page>`
 * Search: `keyword=<keyword>`
+
+## Response
+```
+{
+    "current_page":1,
+    "data":[],
+    "first_page_url":"/?page=1",
+    "from":1,
+    "last_page":1,
+    "last_page_url":"/?page=1",
+    "next_page_url":null,
+    "path":"/",
+    "per_page":10,
+    "prev_page_url":null,
+    "to":3,
+    "total":3
+}
+```
+**NOTE**: The url is not implemented and will remove in the future.
 ## License
 
 MIT
